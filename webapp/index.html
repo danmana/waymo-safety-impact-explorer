@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waymo Safety Impact Explorer</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <button id="header-toggle" class="header-toggle" type="button" aria-expanded="true">
+        <span id="header-summary">Waymo: Loading...</span>
+        <span class="toggle-icon" aria-hidden="true"></span>
+      </button>
+      <div id="header-content">
+        <h1>Geographic distribution of benchmark and Waymo RO miles</h1>
+        <p class="data-source">
+          Human benchmark crash counts for different outcome levels, human vehicle miles traveled (VMT), and Waymo RO miles reported by S2 cell through June 2024. Source:
+          <a
+            href="https://waymo.com/safety/impact/#P0-10-3-title"
+            target="_blank"
+            rel="noreferrer"
+          >
+            waymo.com
+          </a>
+        </p>
+        <section id="controls">
+          <label>
+            Location
+            <select id="location-select"></select>
+          </label>
+          <label>
+            Outcome metric
+            <select id="metric-select"></select>
+          </label>
+          <div id="legend" class="legend" aria-hidden="true">
+            <span class="legend-title">Heatmap intensity</span>
+            <div class="legend-scale">
+              <div class="legend-gradient-wrapper">
+                <span class="legend-label">Lower</span>
+                <span class="legend-gradient" aria-hidden="true"></span>
+                <span class="legend-label">Higher</span>
+              </div>
+              <div class="legend-values">
+                <span id="legend-min" class="legend-value">0</span>
+                <span id="legend-mid" class="legend-value">—</span>
+                <span id="legend-max" class="legend-value">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </header>
+
+    <main>
+      <div id="map"></div>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
