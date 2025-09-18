@@ -83,9 +83,8 @@ def build_cells(rows: List[Dict[str, str]]) -> Dict[str, Dict[str, CellEntry]]:
                 "waymo_ro_miles": waymo_miles,
             }
             location_cells[cell_token] = entry
-        else:
-            entry["hpms_vehicle_miles_traveled"] = hpms_vmt
-            entry["waymo_ro_miles"] = waymo_miles
+        # Note: We only set hpms_vehicle_miles_traveled and waymo_ro_miles once (first occurrence)
+        # since they are the same for all outcome rows of the same S2 cell
 
         entry["metrics"][outcome] = benchmark_crash_count
 

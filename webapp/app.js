@@ -12,6 +12,9 @@ const METRICS = [
   "ka",
   "observed_any_injury",
   "police_reported",
+  "human_miles",
+  "waymo_miles",
+  "human_to_waymo_ratio",
 ];
 
 const DEFAULT_LOCATION = "SAN_FRANCISCO";
@@ -25,6 +28,9 @@ const metricLabels = {
   ka: "KA (severe injury/fatal)",
   observed_any_injury: "Observed any injury",
   police_reported: "Police reported",
+  human_miles: "Human miles",
+  waymo_miles: "Waymo miles",
+  human_to_waymo_ratio: "Human to Waymo ratio",
 };
 
 const DEFAULT_FILL_OPACITY = 0.65;
@@ -102,7 +108,18 @@ function computeMetricMax() {
     const maxPerMetric = {};
     payload.cells.forEach((cell) => {
       METRICS.forEach((metric) => {
-        const value = cell.metrics?.[metric];
+        let value;
+        if (metric === "human_miles") {
+          value = cell.hpms_vehicle_miles_traveled;
+        } else if (metric === "waymo_miles") {
+          value = cell.waymo_ro_miles;
+        } else if (metric === "human_to_waymo_ratio") {
+          const humanMiles = cell.hpms_vehicle_miles_traveled;
+          const waymoMiles = cell.waymo_ro_miles;
+          value = waymoMiles > 0 ? humanMiles / waymoMiles : 0;
+        } else {
+          value = cell.metrics?.[metric];
+        }
         if (value == null) return;
         const current = maxPerMetric[metric] ?? 0;
         if (value > current) {
@@ -123,7 +140,18 @@ function formatNumber(value) {
 
 function buildPopupHtml(cell) {
   const rows = METRICS.map((metric) => {
-    const value = cell.metrics?.[metric];
+    let value;
+    if (metric === "human_miles") {
+      value = cell.hpms_vehicle_miles_traveled;
+    } else if (metric === "waymo_miles") {
+      value = cell.waymo_ro_miles;
+    } else if (metric === "human_to_waymo_ratio") {
+      const humanMiles = cell.hpms_vehicle_miles_traveled ?? 0;
+      const waymoMiles = cell.waymo_ro_miles ?? 0;
+      value = waymoMiles > 0 ? humanMiles / waymoMiles : 0;
+    } else {
+      value = cell.metrics?.[metric];
+    }
     return `<tr><th>${metricLabels[metric] ?? metric}</th><td>${formatNumber(
       value
     )}</td></tr>`;
@@ -135,12 +163,6 @@ function buildPopupHtml(cell) {
       <table>
         <tbody>
           ${rows}
-          <tr><th>HPMS miles</th><td>${formatNumber(
-            cell.hpms_vehicle_miles_traveled
-          )}</td></tr>
-          <tr><th>Waymo RO miles</th><td>${formatNumber(
-            cell.waymo_ro_miles
-          )}</td></tr>
         </tbody>
       </table>
     </div>
@@ -238,7 +260,18 @@ function refreshLayers({ fitView = false } = {}) {
   const maxValue = metricMaxLookup[currentLocation]?.[currentMetric] || 0;
 
   locationPayload.cells.forEach((cell) => {
-    const intensityRaw = cell.metrics?.[currentMetric] ?? 0;
+    let intensityRaw;
+    if (currentMetric === "human_miles") {
+      intensityRaw = cell.hpms_vehicle_miles_traveled ?? 0;
+    } else if (currentMetric === "waymo_miles") {
+      intensityRaw = cell.waymo_ro_miles ?? 0;
+    } else if (currentMetric === "human_to_waymo_ratio") {
+      const humanMiles = cell.hpms_vehicle_miles_traveled ?? 0;
+      const waymoMiles = cell.waymo_ro_miles ?? 0;
+      intensityRaw = waymoMiles > 0 ? humanMiles / waymoMiles : 0;
+    } else {
+      intensityRaw = cell.metrics?.[currentMetric] ?? 0;
+    }
     const intensity = maxValue > 0 ? intensityRaw / maxValue : 0;
 
     const polygon = L.polygon(
